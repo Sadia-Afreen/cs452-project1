@@ -8,40 +8,32 @@
 
 int main(int argc, char **argv)
 {
-  int c;
 
-  while ((c = getopt(argc, argv, "v:")) != -1)
-  {
-    switch (c)
-    {
-    case 'v':
-      printf("Shell version: %d.%d\n", lab_VERSION_MAJOR, lab_VERSION_MINOR);
-      return 0;
-      break;
-    case '?':
-      if (isprint(optopt))
-        fprintf(stderr, "Unknown", optopt);
-      else
-        fprintf(stderr, "Unknown", optopt);
-      return 1;
-    default:
-      abort();
-    }
-  }
-
+  parse_args(argc, argv);
   struct shell my_shell;
-  my_shell.prompt = get_prompt("MY_PROMPT");
-  // printf("Prompt: %s\n", my_shell.prompt);
+  sh_init(&my_shell);
 
   char *line;
   using_history();
   while ((line = readline(my_shell.prompt)))
   {
-    printf("%s\n", line);
+    line = trim_white(line);
     add_history(line);
-    free(line);
+
+    char **argv = cmd_parse(line);
+    if (do_builtin(&my_shell, argv))
+    {
+      cmd_free(argv);
+      free(line);
+    }
+    else
+    {
+      cmd_free(argv);
+      free(line);
+    }
   }
-  free(my_shell.prompt);
+
+  sh_destroy(&my_shell);
 
   return 0;
 }

@@ -57,38 +57,33 @@ char *get_prompt(const char *env)
  */
 int change_dir(char **dir)
 {
-  char *home;
+  const char *path;
 
-  // If no argument is provided, get the home directory
-  if (dir == NULL || dir[0] == NULL)
+  if (dir[1] == NULL)
   {
-    // Try to get the home directory from environment variable
-    home = getenv("HOME");
-    if (home == NULL)
+    path = getenv("HOME");
+    if (path == NULL)
     {
-      // Fallback to using getuid and getpwuid
       struct passwd *pw = getpwuid(getuid());
-      if (pw != NULL)
+      if (pw == NULL)
       {
-        home = pw->pw_dir;
-      }
-      else
-      {
-        perror("cd: failed to get home directory");
+        perror("getpwuid");
         return -1;
       }
+      path = pw->pw_dir;
     }
-    dir = &home; // Set dir to the home directory
   }
-
-  // Attempt to change the directory
-  if (chdir(dir[0]) != 0)
+  else
   {
-    perror("cd: failed to change directory");
-    return -1; // Return -1 on failure
+    path = dir[1];
+  }
+  if (chdir(path) != 0)
+  {
+    perror("chdir");
+    return -1;
   }
 
-  return 0; // Return 0 on success
+  return 0;
 }
 
 /**
@@ -238,7 +233,6 @@ char *trim_white(char *line)
  */
 bool do_builtin(struct shell *sh, char **argv)
 {
-  printf("inside do_builtin\n");
   if (argv == NULL || argv[0] == NULL)
     return false;
 
@@ -250,18 +244,26 @@ bool do_builtin(struct shell *sh, char **argv)
 
   if (strcmp(argv[0], "cd") == 0)
   {
-    if (argv[1] == NULL)
+    if (change_dir(argv) == 0)
     {
-      fprintf(stderr, "cd: missing argument\n");
+      return true;
+    }
+    return false;
+  }
+
+  if (strcmp(argv[0], "pwd") == 0)
+  {
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+      printf("%s\n", cwd);
+      return true;
     }
     else
     {
-      if (chdir(argv[1]) != 0)
-      {
-        perror("cd");
-      }
+      perror("getcwd");
+      return false;
     }
-    return true;
   }
 
   if (strcmp(argv[0], "history") == 0)
@@ -273,7 +275,7 @@ bool do_builtin(struct shell *sh, char **argv)
     if (hist_list == NULL)
     {
       printf("No history available.\n");
-      return;
+      return false;
     }
 
     for (i = 0; hist_list[i] != NULL; i++)

@@ -1,4 +1,4 @@
-#include "/home/sadiaafreen/Documents/BSU/Fall_24/Operating Systems/cs452-project1/src/lab.h"
+#include "../src/lab.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -181,9 +181,6 @@ char *trim_white(char *line)
   len = strlen(line);
   endp = line + len;
 
-  /* Move the front and back pointers to address the first non-whitespace
-   * characters from each end.
-   */
   while (isspace((unsigned char)*frontp))
   {
     ++frontp;
@@ -197,16 +194,11 @@ char *trim_white(char *line)
 
   if (frontp != line && endp == frontp)
   {
-    // Empty string
     *(isspace((unsigned char)*endp) ? line : (endp + 1)) = '\0';
   }
   else if (line + len - 1 != endp)
     *(endp + 1) = '\0';
 
-  /* Shift the string so that it starts at str so that if it's dynamically
-   * allocated, we can still free it on the returned pointer.  Note the reuse
-   * of endp to mean the front of the string buffer now.
-   */
   endp = line;
   if (frontp != line)
   {

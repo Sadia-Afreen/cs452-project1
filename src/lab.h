@@ -24,7 +24,13 @@ extern "C"
     char *prompt;
   };
 
-
+  struct job
+  {
+    int job_id;
+    pid_t pid;
+    char *command;
+    struct job *next;
+  };
 
   /**
    * @brief Set the shell prompt. This function will attempt to load a prompt
@@ -65,7 +71,7 @@ extern "C"
    *
    * @param line the line to free
    */
-  void cmd_free(char ** line);
+  void cmd_free(char **line);
 
   /**
    * @brief Trim the whitespace from the start and end of a string.
@@ -77,7 +83,6 @@ extern "C"
    * @return The new line with no whitespace
    */
   char *trim_white(char *line);
-
 
   /**
    * @brief Takes an argument list and checks if the first argument is a
@@ -119,8 +124,6 @@ extern "C"
    * @param argv The arg array
    */
   void parse_args(int argc, char **argv);
-
-
 
 #ifdef __cplusplus
 } // extern "C"

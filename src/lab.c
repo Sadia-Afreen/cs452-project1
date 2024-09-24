@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <termios.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 /**
  * @brief Set the shell prompt. This function will attempt to load a prompt
@@ -291,7 +294,31 @@ bool do_builtin(struct shell *sh, char **argv)
  */
 void sh_init(struct shell *sh)
 {
-  sh->prompt = get_prompt("MY_PROMPT"); // Get shell prompt
+  sh->prompt = get_prompt("MY_PROMPT");
+  sh->shell_terminal = STDIN_FILENO;
+  sh->shell_is_interactive = isatty(sh->shell_terminal);
+
+  if (sh->shell_is_interactive)
+  {
+    while (tcgetpgrp(sh->shell_terminal) != (sh->shell_pgid = getpgrp()))
+      kill(sh->shell_pgid, SIGTTIN);
+
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
+
+    sh->shell_pgid = getpid();
+    if (setpgid(sh->shell_pgid, sh->shell_pgid) < 0)
+    {
+      perror("Couldn't put the shell in its own process group");
+      exit(1);
+    }
+
+    tcsetpgrp(sh->shell_terminal, sh->shell_pgid);
+    tcgetattr(sh->shell_terminal, &sh->shell_tmodes);
+  }
 }
 
 /**

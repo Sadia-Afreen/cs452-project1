@@ -295,6 +295,7 @@ bool do_builtin(struct shell *sh, char **argv)
 void sh_init(struct shell *sh)
 {
   sh->prompt = get_prompt("MY_PROMPT");
+
   sh->shell_terminal = STDIN_FILENO;
   sh->shell_is_interactive = isatty(sh->shell_terminal);
 

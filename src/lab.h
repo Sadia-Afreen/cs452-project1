@@ -9,11 +9,19 @@
 #define lab_VERSION_MAJOR 1
 #define lab_VERSION_MINOR 0
 #define UNUSED(x) (void)x;
+#define MAX_BG_PROCESSES 1024
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+  struct bg_process
+  {
+    int job_id;
+    pid_t pid;
+    char *command;
+  };
 
   struct shell
   {
@@ -22,14 +30,9 @@ extern "C"
     struct termios shell_tmodes;
     int shell_terminal;
     char *prompt;
-  };
 
-  struct job
-  {
-    int job_id;
-    pid_t pid;
-    char *command;
-    struct job *next;
+    struct bg_process bg_processes[MAX_BG_PROCESSES];
+    int num_bg_processes;
   };
 
   /**

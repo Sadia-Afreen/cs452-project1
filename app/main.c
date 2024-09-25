@@ -120,15 +120,16 @@ int main(int argc, char **argv)
       pid_t pid = waitpid(my_shell.bg_processes[i].pid, &status, WNOHANG);
       if (pid > 0)
       {
-        printf("[%d] Done %s\n", my_shell.bg_processes[i].job_id, my_shell.bg_processes[i].command);
-        free(my_shell.bg_processes[i].command);
-        // Shift remaining processes down
-        for (int j = i; j < my_shell.num_bg_processes - 1; j++)
-        {
-          my_shell.bg_processes[j] = my_shell.bg_processes[j + 1];
-        }
-        my_shell.num_bg_processes--;
-        i--; // Adjust index after removing process
+        // printf("[%d] Done %s\n", my_shell.bg_processes[i].job_id, my_shell.bg_processes[i].command);
+        // free(my_shell.bg_processes[i].command);
+        // // Shift remaining processes down
+        // for (int j = i; j < my_shell.num_bg_processes - 1; j++)
+        // {
+        //   my_shell.bg_processes[j] = my_shell.bg_processes[j + 1];
+        // }
+        // my_shell.num_bg_processes--;
+        // i--; // Adjust index after removing process
+        my_shell.bg_processes[i].is_done = 1;
       }
     }
   }

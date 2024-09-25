@@ -279,6 +279,23 @@ bool do_builtin(struct shell *sh, char **argv)
     }
   }
 
+  if (strcmp(argv[0], "jobs") == 0)
+  {
+    for (int i = 0; i < sh->num_bg_processes; i++)
+    {
+      struct bg_process *bgp = &sh->bg_processes[i];
+      if (bgp->is_done)
+      {
+        printf("[%d] Done    %s &\n", bgp->job_id, bgp->command);
+      }
+      else
+      {
+        printf("[%d] %d Running %s &\n", bgp->job_id, bgp->pid, bgp->command);
+      }
+    }
+    return true;
+  }
+
   return false;
 }
 

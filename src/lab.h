@@ -21,6 +21,7 @@ extern "C"
     int job_id;
     pid_t pid;
     char *command;
+    int is_done;
   };
 
   struct shell

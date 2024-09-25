@@ -26,7 +26,6 @@ char *get_prompt(const char *env)
 {
   char *prompt = NULL;
   const char *default_prompt = "shell>";
-
   const char *env_prompt = getenv(env);
 
   if (env_prompt != NULL)
@@ -368,16 +367,12 @@ void parse_args(int argc, char **argv)
     {
     case 'v':
       printf("Shell version: %d.%d\n", lab_VERSION_MAJOR, lab_VERSION_MINOR);
-      return 0;
+      break;
     case '?':
       if (isprint(optopt))
-        fprintf(stderr, "Unknown \n", optopt);
+        fprintf(stderr, "Unknown option: '%c'\n", optopt);
       else
-        fprintf(stderr, "Unknown \n", optopt);
-      return 1;
-    default:
-      abort();
+        fprintf(stderr, "Unknown option: '\\x%x'\n", optopt);
     }
   }
-  return 0;
 }

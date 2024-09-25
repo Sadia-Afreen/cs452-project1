@@ -44,7 +44,6 @@ int execute_command(char **argv, struct shell *sh, int background)
 
     if (background)
     {
-      // Store the background process info
       sh->bg_processes[sh->num_bg_processes].job_id = sh->num_bg_processes + 1;
       sh->bg_processes[sh->num_bg_processes].pid = pid;
       sh->bg_processes[sh->num_bg_processes].command = strdup(argv[0]);
@@ -53,7 +52,6 @@ int execute_command(char **argv, struct shell *sh, int background)
     }
     else
     {
-      // Wait for foreground process
       do
       {
         wpid = waitpid(pid, &status, WUNTRACED);
@@ -74,13 +72,12 @@ int execute_command(char **argv, struct shell *sh, int background)
 
 int is_background(char *line)
 {
-  // Trim whitespace and check if line ends with '&'
   size_t len = strlen(line);
   while (len > 0 && isspace(line[len - 1]))
-    len--; // Remove trailing spaces
+    len--;
   if (len > 0 && line[len - 1] == '&')
   {
-    line[len - 1] = '\0'; // Remove '&' from the command
+    line[len - 1] = '\0';
     return 1;
   }
   return 0;
@@ -90,6 +87,11 @@ int main(int argc, char **argv)
 {
 
   parse_args(argc, argv);
+  if (argc > 1 && strcmp(argv[1], "-v") == 0)
+  {
+    return 0;
+  }
+
   struct shell my_shell = {0};
   sh_init(&my_shell);
 
@@ -120,15 +122,6 @@ int main(int argc, char **argv)
       pid_t pid = waitpid(my_shell.bg_processes[i].pid, &status, WNOHANG);
       if (pid > 0)
       {
-        // printf("[%d] Done %s\n", my_shell.bg_processes[i].job_id, my_shell.bg_processes[i].command);
-        // free(my_shell.bg_processes[i].command);
-        // // Shift remaining processes down
-        // for (int j = i; j < my_shell.num_bg_processes - 1; j++)
-        // {
-        //   my_shell.bg_processes[j] = my_shell.bg_processes[j + 1];
-        // }
-        // my_shell.num_bg_processes--;
-        // i--; // Adjust index after removing process
         my_shell.bg_processes[i].is_done = 1;
       }
     }

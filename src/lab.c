@@ -107,27 +107,16 @@ char **cmd_parse(char const *line)
   }
 
   char **argv = malloc(sizeof(char *) * (arg_max + 1));
-  // Allocate memory for a mutable copy of 'line'
   char *mutable_line = strdup(line);
-  if (mutable_line == NULL)
-  {
-    free(argv);
-    return NULL; // Handle strdup failure
-  }
 
   char *token = strtok(mutable_line, " \t\n");
   int i = 0;
   while (token != NULL && i < arg_max)
   {
-    argv[i] = strdup(token); // Duplicate token
+    argv[i] = strdup(token);
     if (argv[i] == NULL)
     {
-      // Free previously allocated memory on failure
-      for (int j = 0; j < i; j++)
-      {
-        free(argv[j]);
-      }
-      free(argv);
+      cmd_free(argv);
       free(mutable_line);
       return NULL;
     }

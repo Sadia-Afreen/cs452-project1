@@ -11,7 +11,9 @@
 
 int execute_command(char **argv, struct shell *sh, int background)
 {
-  pid_t pid, wpid;
+  if (argv == NULL || argv[0] == NULL)
+    return 0;
+  pid_t pid;
   int status;
 
   pid = fork();
@@ -29,10 +31,7 @@ int execute_command(char **argv, struct shell *sh, int background)
       signal(SIGTTIN, SIG_DFL);
       signal(SIGTTOU, SIG_DFL);
     }
-    if (execvp(argv[0], argv) == -1)
-    {
-      perror("execvp failed");
-    }
+    execvp(argv[0], argv);
     exit(EXIT_FAILURE);
   }
   else if (pid < 0)
@@ -54,7 +53,7 @@ int execute_command(char **argv, struct shell *sh, int background)
     {
       do
       {
-        wpid = waitpid(pid, &status, WUNTRACED);
+        waitpid(pid, &status, WUNTRACED);
         if (WIFSTOPPED(status))
         {
           tcsetpgrp(sh->shell_terminal, sh->shell_pgid);
